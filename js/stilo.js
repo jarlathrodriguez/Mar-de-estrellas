@@ -1,20 +1,15 @@
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-
-window.addEventListener("resize", resizeCanvas);
-
 let forming = false;
 let redMode = false;
 let colorProgress = 0;
 
-//Estrellas
+//Estrellas aumentar o disminuir
 const STAR_COUNT =
-window.innerWidth < 400 ? 1200 :
-window.innerWidth < 600 ? 1600 :
-3000;
+window.innerWidth < 400 ? 400 :
+window.innerWidth < 600 ? 600 :
+1500;
 
 let stars = [];
 
@@ -47,17 +42,11 @@ document.addEventListener("mousemove",e=>{
 document.addEventListener("touchmove",e=>{
 
   const touch = e.touches[0];
-
   mouse.x = touch.clientX;
   mouse.y = touch.clientY;
 
 });
 
-document.addEventListener("touchmove", e =>{
-    const touch = e.touches[0];
-    mouse.x = touch.clientX;
-    mouse.y = touch.clientY;
-})
 
 class Star{
   constructor(){
@@ -78,8 +67,7 @@ class Star{
   }
 
   update(){
-
-    this.y-=this.speed;
+    this.y-= this.speed;
     this.wave+=0.02;
     this.x+=Math.sin(this.wave)*0.5;
 
@@ -116,7 +104,7 @@ class Star{
 
   draw(){
     ctx.beginPath();
-    ctx.shadowBlur=30;//brillo
+    ctx.shadowBlur=40;//brillo
 
     let r=255;
     let g=255-(205*colorProgress);
@@ -137,6 +125,7 @@ function resizeCanvas() {
     ctx.scale(dpr, dpr);
     createStars();
 }
+window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 function createStars(){
@@ -149,43 +138,20 @@ function createStars(){
 //texto
 function getTextPoints(text){
   let off=document.createElement("canvas");
-  off.width=canvas.width;
-  off.height=canvas.height;
-  let octx=off.getContext("2d");
+  off.width = window.innerWidth;
+  off.height = window.innerHeight;
+  let octx = off.getContext("2d");
 
   let fontSize;
-  let scale;
-  let starCount;
+  if (window.innerWidth < 400) fontSize = 35;
+  else if (window.innerWidth < 768) fontSize = 50;
+  else if (window.innerWidth < 1200) fontSize = 90;
+  else fontSize = Math.min(window.innerWidth * 0.12, 120);
 
- 
-  if (window.innerWidth < 400) {
-    fontSize = 35;
-    scale = 6;
-    starCount = 600;
-  }
-  else if (window.innerWidth < 768) {
-    fontSize = 50;
-    scale = 8;
-    starCount = 800;
-  }
-  else if (window.innerWidth < 1200) {
-    fontSize = 90;
-    scale = 12;
-    starCount = 1500;
-  }
-  else {
-    fontSize = Math.min(window.innerWidth * 0.12, 120);
-    scale = 15;
-    starCount = 2000;
-  }
-  octx.fillStyle="white";
-  octx.font="800 "+fontSize+"px Arial";//Fuente mas gruesa
-  octx.textAlign="center";
-  octx.fillText(
-    text,
-    window.innerWidth / 2,
-    window.innerHeight / 2
-  );
+  octx.fillStyle = "white";
+  octx.font = "400 " + fontSize + "px Arial";
+  octx.textAlign = "center";
+  octx.fillText(text, window.innerWidth / 2, window.innerHeight / 2);
 
   let data=octx.getImageData(0,0,off.width,off.height).data;
   let points=[];
@@ -210,27 +176,15 @@ function formWord(text){
 }
 //corazon
 function formHeart(){
-  let points=[];
-  let scale;
-  if(window.innerWidth < 400){
-    scale = 6;
-    }
-    else if(window.innerWidth < 600){
-        scale = 8;
-    }
-    else{
-        scale = 15;
-    }
+  let points = [];
+  let scale = window.innerWidth < 400 ? 6 : window.innerWidth < 600 ? 8 : 15;
   let centerX = window.innerWidth / 2;
   let centerY = window.innerHeight / 2;
 
-  for(let t=0;t<Math.PI*2;t+=0.02){
-    let x=16*Math.pow(Math.sin(t),3);
-    let y=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-    points.push({
-      x:centerX+x*scale,
-      y:centerY+y*scale
-    });
+  for (let t = 0; t < Math.PI*2; t += 0.02) {
+    let x = 16 * Math.pow(Math.sin(t),3);
+    let y = -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
+    points.push({x:centerX+x*scale, y:centerY+y*scale});
   }
 
   stars.forEach((star,i)=>{
